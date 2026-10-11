@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.mapper.OrderMapper">
+
+    <resultMap id="orderMap" type="com.test.entity.Order">
+        <id property="id" column="id"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="productId" column="product_id"/>
+        <result property="buyerId" column="buyer_id"/>
+        <result property="sellerId" column="seller_id"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="status" column="status"/>
+        <result property="buyerRemark" column="buyer_remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="productTitle" column="product_title"/>
+        <result property="productImage" column="product_image"/>
+        <result property="buyerName" column="buyer_name"/>
+        <result property="sellerName" column="seller_name"/>
+    </resultMap>
+
+    <select id="findById" resultMap="orderMap">
+        SELECT o.*, p.title as product_title, p.images as product_image,
+        bu.username as buyer_name, su.username as seller_name
+        FROM t_order o
+        LEFT JOIN t_product p ON o.product_id = p.id
+        LEFT JOIN t_user bu ON o.buyer_id = bu.id
+        LEFT JOIN t_user su ON o.seller_id = su.id
+        WHERE o.id = #{id}
+    </select>
+
+    <select id="findByOrderNo" resultMap="orderMap">
+        SELECT o.*, p.title as product_title, p.images as product_image,
+        bu.username as buyer_name, su.username as seller_name
+        FROM t_order o
+        LEFT JOIN t_product p ON o.product_id = p.id
+        LEFT JOIN t_user bu ON o.buyer_id = bu.id
+        LEFT JOIN t_user su ON o.seller_id = su.id
+        WHERE o.order_no = #{orderNo}
+    </select>
+
+    <select id="findByBuyerId" resultMap="orderMap">
+        SELECT o.*, p.title as product_title, p.images as product_image,
+        su.username as seller_name
+        FROM t_order o
+        LEFT JOIN t_product p ON o.product_id = p.id
+        LEFT JOIN t_user su ON o.seller_id = su.id
+        WHERE o.buyer_id = #{buyerId}
+        ORDER BY o.create_time DESC
+    </select>
+
+    <select id="findBySellerId" resultMap="orderMap">
+        SELECT o.*, p.title as product_title, p.images as product_image,
+        bu.username as buyer_name
+        FROM t_order o
+        LEFT JOIN t_product p ON o.product_id = p.id
+        LEFT JOIN t_user bu ON o.buyer_id = bu.id
+        WHERE o.seller_id = #{sellerId}
+        ORDER BY o.create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_order (order_no, product_id, buyer_id, seller_id, total_amount, status, buyer_remark)
+        VALUES (#{orderNo}, #{productId}, #{buyerId}, #{sellerId}, #{totalAmount}, #{status}, #{buyerRemark})
+    </insert>
+
+    <update id="update">
+        UPDATE t_order SET status = #{status}, buyer_remark = #{buyerRemark} WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_order SET status = #{status} WHERE id = #{id}
+    </update>
+
+</mapper>

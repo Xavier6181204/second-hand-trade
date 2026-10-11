@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.mapper.ProductMapper">
+
+    <resultMap id="productMap" type="com.test.entity.Product">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="price" column="price"/>
+        <result property="originalPrice" column="original_price"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="sellerId" column="seller_id"/>
+        <result property="images" column="images"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="sellerName" column="seller_name"/>
+        <result property="sellerPhone" column="seller_phone"/>
+    </resultMap>
+
+    <!-- 前台首页：只显示出售中的商品 -->
+    <select id="findList" resultMap="productMap">
+        SELECT p.*, c.name as category_name, u.username as seller_name
+        FROM t_product p
+        LEFT JOIN t_category c ON p.category_id = c.id
+        LEFT JOIN t_user u ON p.seller_id = u.id
+        WHERE p.status = 1
+        <if test="categoryId != null and categoryId != 0">
+            AND p.category_id = #{categoryId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND p.title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY p.create_time DESC
+    </select>
+
+    <!-- 后台管理：显示所有商品 -->
+    <select id="findAllList" resultMap="productMap">
+        SELECT p.*, c.name as category_name, u.username as seller_name
+        FROM t_product p
+        LEFT JOIN t_category c ON p.category_id = c.id
+        LEFT JOIN t_user u ON p.seller_id = u.id
+        WHERE 1=1
+        <if test="categoryId != null and categoryId != 0">
+            AND p.category_id = #{categoryId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND p.title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY p.create_time DESC
+    </select>
+
+    <select id="findById" resultMap="productMap">
+        SELECT p.*, c.name as category_name, u.username as seller_name, u.phone as seller_phone
+        FROM t_product p
+        LEFT JOIN t_category c ON p.category_id = c.id
+        LEFT JOIN t_user u ON p.seller_id = u.id
+        WHERE p.id = #{id}
+    </select>
+
+    <select id="findBySellerId" resultMap="productMap">
+        SELECT p.*, c.name as category_name
+        FROM t_product p
+        LEFT JOIN t_category c ON p.category_id = c.id
+        WHERE p.seller_id = #{sellerId}
+        ORDER BY p.create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_product (title, description, price, original_price, category_id, seller_id, images, status, view_count)
+        VALUES (#{title}, #{description}, #{price}, #{originalPrice}, #{categoryId}, #{sellerId}, #{images}, #{status}, #{viewCount})
+    </insert>
+
+    <update id="update">
+        UPDATE t_product
+        SET title = #{title}, description = #{description}, price = #{price},
+        original_price = #{originalPrice}, category_id = #{categoryId}, images = #{images}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_product SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <update id="updateViewCount">
+        UPDATE t_product SET view_count = view_count + 1 WHERE id = #{id}
+    </update>
+
+</mapper>

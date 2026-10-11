@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.mapper.CategoryMapper">
+
+    <resultMap id="categoryMap" type="com.test.entity.Category">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="sort" column="sort"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="categoryMap">
+        SELECT * FROM t_category ORDER BY sort ASC
+    </select>
+
+    <select id="findById" resultMap="categoryMap">
+        SELECT * FROM t_category WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_category (name, sort) VALUES (#{name}, #{sort})
+    </insert>
+
+    <update id="update">
+        UPDATE t_category SET name = #{name}, sort = #{sort} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_category WHERE id = #{id}
+    </delete>
+
+</mapper>

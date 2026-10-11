@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.mapper.CartMapper">
+
+    <resultMap id="cartMap" type="com.test.entity.Cart">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="productTitle" column="product_title"/>
+        <result property="productImage" column="product_image"/>
+        <result property="productPrice" column="product_price"/>
+        <result property="sellerName" column="seller_name"/>
+        <result property="productStatus" column="product_status"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_cart (user_id, product_id) VALUES (#{userId}, #{productId})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM t_cart WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByUserIdAndProductId">
+        DELETE FROM t_cart WHERE user_id = #{userId} AND product_id = #{productId}
+    </delete>
+
+    <select id="findByUserIdAndProductId" resultMap="cartMap">
+        SELECT * FROM t_cart WHERE user_id = #{userId} AND product_id = #{productId}
+    </select>
+
+    <select id="findByUserId" resultMap="cartMap">
+        SELECT c.*, p.title as product_title, p.images as product_image,
+        p.price as product_price, p.status as product_status,
+        u.username as seller_name
+        FROM t_cart c
+        LEFT JOIN t_product p ON c.product_id = p.id
+        LEFT JOIN t_user u ON p.seller_id = u.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.create_time DESC
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(*) FROM t_cart WHERE user_id = #{userId}
+    </select>
+
+</mapper>
